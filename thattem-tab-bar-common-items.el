@@ -268,20 +268,21 @@ parameter."
      workspace-x-bound)
    by #'cddr
    do
-   (let* ((before (cl-set-difference
-                   tab-bar-format (memq super tab-bar-format)))
-          (not-eval-items
-           '(thattem-tab-bar-format-position-helper))
-          (before (cl-set-difference before not-eval-items))
-          (before (tab-bar-format-list before))
-          (before (mapconcat (lambda (item) (nth 2 item)) before ""))
-          (before-width (string-pixel-width before))
-          (super (tab-bar-format-list (list super)))
-          (super (mapconcat (lambda (item) (nth 2 item)) super ""))
-          (super-width (string-pixel-width super)))
-     (set-frame-parameter nil parameter
-                          (cons before-width
-                                (+ before-width super-width))))))
+   (if-let* ((rests (memq super tab-bar-format)))
+       (let* ((before (cl-set-difference tab-bar-format rests))
+              (not-eval-items
+               '(thattem-tab-bar-format-position-helper))
+              (before (cl-set-difference before not-eval-items))
+              (before (tab-bar-format-list before))
+              (before (mapconcat (lambda (item) (nth 2 item)) before ""))
+              (before-width (string-pixel-width before))
+              (super (tab-bar-format-list (list super)))
+              (super (mapconcat (lambda (item) (nth 2 item)) super ""))
+              (super-width (string-pixel-width super)))
+         (set-frame-parameter nil parameter
+                              (cons before-width
+                                    (+ before-width super-width))))
+     (set-frame-parameter nil parameter nil))))
 
 
 (provide 'thattem-tab-bar-common-items)
