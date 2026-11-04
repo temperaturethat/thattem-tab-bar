@@ -37,6 +37,8 @@
 (require 'thattem-tab-bar-common-items)
 (require 'thattem-tab-bar-advices)
 
+;;; Define formats
+
 (defcustom thattem-tab-bar-format-default
   '(thattem-tab-bar-format-position-helper
     thattem-tab-bar-format-history
@@ -79,6 +81,22 @@
                         'thattem-tab-bar-short-name))))
   :group 'thattem-tab-bar)
 
+;;; Define backup variable
+
+(defvar thattem-tab-bar--backup-flag
+  nil
+  "Non-nil means the original tab bar settings are backed up.")
+
+(defvar thattem-tab-bar--auto-width-backup
+  nil
+  "Backup the original tab bar auto width.")
+
+(defvar thattem-tab-bar--tab-bar-format-backup
+  nil
+  "Backup the original tab bar format.")
+
+;;; Define keymap
+
 (defvar thattem-tab-bar-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map [tab-bar wheel-up]
@@ -90,33 +108,53 @@
     map)
   "Keymap used by `thattem-tab-bar-mode'.")
 
+;;; Define minor mode
+
 (define-minor-mode thattem-tab-bar-mode
   "Toggle thattem tab bar mode."
   :global t
 
   (when thattem-tab-bar-mode
+    ;; Add advice
     (unless (advice-member-p
              #'thattem-tab-bar--advice-around--tab-bar-mouse-1
              'tab-bar-mouse-1)
       (advice-add 'tab-bar-mouse-1 :around
                   #'thattem-tab-bar--advice-around--tab-bar-mouse-1))
+    ;; Start timer
     (thattem-tab-bar-start-timer
      thattem-tab-bar-workspace-timer)
     (thattem-tab-bar-start-timer
-     thattem-tab-bar-system-monitor-timer))
+     thattem-tab-bar-system-monitor-timer)
+    ;; Set variable
+    (unless thattem-tab-bar--backup-flag
+      (setq thattem-tab-bar--auto-width-backup
+            tab-bar-auto-width)
+      (setq thattem-tab-bar--tab-bar-format-backup
+            tab-bar-format))
+    (setopt tab-bar-auto-width nil)
+    (setopt tab-bar-format (symbol-value thattem-tab-bar-style))
+    ;; Set backup flag
+    (setq thattem-tab-bar--backup-flag t))
 
   (unless thattem-tab-bar-mode
+    ;; Remove advice
     (advice-remove 'tab-bar-mouse-1
                    #'thattem-tab-bar--advice-around--tab-bar-mouse-1)
+    ;; Stop timer
     (thattem-tab-bar-stop-timer
      thattem-tab-bar-workspace-timer)
     (thattem-tab-bar-stop-timer
-     thattem-tab-bar-system-monitor-timer))
+     thattem-tab-bar-system-monitor-timer)
+    ;; Restore variable
+    (when thattem-tab-bar--backup-flag
+      (setopt tab-bar-auto-width thattem-tab-bar--auto-width-backup)
+      (setopt tab-bar-format thattem-tab-bar--tab-bar-format-backup))
+    ;; Set backup flag
+    (setq thattem-tab-bar--backup-flag nil))
 
   (when thattem-tab-bar-mode
-    (tab-bar-mode)
-    (setopt tab-bar-auto-width nil)
-    (setopt tab-bar-format (symbol-value thattem-tab-bar-style))))
+    (tab-bar-mode)))
 
 
 (provide 'thattem-tab-bar)
