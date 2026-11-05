@@ -116,11 +116,11 @@ It allows you to switch tab by pressing and scroll mouse wheel."
                        triple-drag-mouse-2))
                (setq go-on nil)
                (unless shadow
-                 (add-to-list 'unread-command-events next-event)))
+                 (push next-event unread-command-events)))
               (t
                (setq go-on nil)
-               (add-to-list 'unread-command-events event)
-               (add-to-list 'unread-command-events next-event)))))))
+               (push event unread-command-events)
+               (push next-event unread-command-events)))))))
 
 
 (provide 'thattem-tab-bar-advices)
