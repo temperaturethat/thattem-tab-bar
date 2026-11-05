@@ -69,16 +69,6 @@
   "Style of tab bar."
   :type '(choice (const thattem-tab-bar-format-default)
                  (const thattem-tab-bar-format-modern))
-  :set (lambda (symbol value)
-         (set-default-toplevel-value symbol value)
-         (cond ((eq value 'thattem-tab-bar-format-default)
-                (setopt tab-bar-new-tab-to 'rightmost)
-                (setopt thattem-tab-bar-tab-name-style
-                        'thattem-tab-bar-long-name))
-               ((eq value 'thattem-tab-bar-format-modern)
-                (setopt tab-bar-new-tab-to 'leftmost)
-                (setopt thattem-tab-bar-tab-name-style
-                        'thattem-tab-bar-short-name))))
   :group 'thattem-tab-bar)
 
 ;;; Define backup variable
@@ -86,6 +76,10 @@
 (defvar thattem-tab-bar--backup-flag
   nil
   "Non-nil means the original tab bar settings are backed up.")
+
+(defvar thattem-tab-bar--new-tab-to-backup
+  nil
+  "Backup the original tab bar new tab to.")
 
 (defvar thattem-tab-bar--auto-width-backup
   nil
@@ -128,10 +122,20 @@
      thattem-tab-bar-system-monitor-timer)
     ;; Set variable
     (unless thattem-tab-bar--backup-flag
+      (setq thattem-tab-bar--new-tab-to-backup
+            tab-bar-new-tab-to)
       (setq thattem-tab-bar--auto-width-backup
             tab-bar-auto-width)
       (setq thattem-tab-bar--tab-bar-format-backup
             tab-bar-format))
+    (cond ((eq thattem-tab-bar-style 'thattem-tab-bar-format-default)
+           (setopt tab-bar-new-tab-to 'rightmost)
+           (setopt thattem-tab-bar-tab-name-style
+                   'thattem-tab-bar-long-name))
+          ((eq thattem-tab-bar-style 'thattem-tab-bar-format-modern)
+           (setopt tab-bar-new-tab-to 'leftmost)
+           (setopt thattem-tab-bar-tab-name-style
+                   'thattem-tab-bar-short-name)))
     (setopt tab-bar-auto-width nil)
     (setopt tab-bar-format (symbol-value thattem-tab-bar-style))
     ;; Set backup flag
@@ -148,6 +152,7 @@
      thattem-tab-bar-system-monitor-timer)
     ;; Restore variable
     (when thattem-tab-bar--backup-flag
+      (setopt tab-bar-new-tab-to thattem-tab-bar--new-tab-to-backup)
       (setopt tab-bar-auto-width thattem-tab-bar--auto-width-backup)
       (setopt tab-bar-format thattem-tab-bar--tab-bar-format-backup))
     ;; Set backup flag
