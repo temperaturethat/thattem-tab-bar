@@ -41,14 +41,15 @@ of the string under the EVENT."
 (defun thattem-tab-bar--advice-around--tab-bar-mouse-1 (func event)
   "Add workspace switch function to `tab-bar-mouse-1'.
 FUNC is the original function and EVENT is its parameter."
-  (let* ((event-start (event-start event))
-         (posn-string (posn-string event-start))
-         (type (get-text-property
-                (cdr posn-string) 'type (car posn-string))))
-    (cond ((eq type 'workspace)
-           (thattem-tab-bar-switch-workspace-by-mouse event))
-          (t
-           (funcall func event)))))
+  (if-let* ((event-start (event-start event))
+            (posn-string (posn-string event-start))
+            (type (get-text-property
+                   (cdr posn-string) 'type (car posn-string))))
+      (cond ((eq type 'workspace)
+             (thattem-tab-bar-switch-workspace-by-mouse event))
+            (t
+             (funcall func event)))
+    (funcall func event)))
 
 ;;; Keybindings
 
