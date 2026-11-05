@@ -165,7 +165,7 @@ thattem-tab-bar."
       `((workspace-error
          menu-item
          ,(propertize
-           "Cannot get workspace information!"
+           "!"
            'face `(thattem-tab-bar/bright-highlight
                    (:height ,thattem-tab-bar-big-font-height)))
          ignore)))))
